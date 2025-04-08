@@ -18,18 +18,10 @@ input ThreeMinLabel = yes;
 input TwoMinLabel = yes;
 input OneMinLabel = yes;
 input VWAPLabel = yes;
-input ShowBackgroundColor = yes;  # Added toggle for background color
 
 # Color definitions - simplified to just two colors
 DefineGlobalColor("Below_MA", Color.RED);
 DefineGlobalColor("Above_MA", Color.DARK_GREEN);
-
-# Background color definitions
-DefineGlobalColor("Strong_Bullish", CreateColor(0, 100, 0));  # Dark Green
-DefineGlobalColor("Moderate_Bullish", CreateColor(144, 238, 144));  # Light Green
-DefineGlobalColor("Neutral", CreateColor(128, 128, 128));  # Gray
-DefineGlobalColor("Moderate_Bearish", CreateColor(255, 160, 160));  # Light Red
-DefineGlobalColor("Strong_Bearish", CreateColor(139, 0, 0));  # Dark Red
 
 # Calculate Daily VWAP once for all timeframes
 def dailyVWAP = VWAP(period = "Day");
@@ -491,110 +483,3 @@ AddLabel(
     "1m200", 
     if oneMinAboveLongSMA then GlobalColor("Above_MA") else GlobalColor("Below_MA")
 );
-
-# Calculate trend alignment score
-def totalTimeframes = 0;
-def bullishSignals = 0;
-
-# Count active timeframes and bullish signals
-if DayLabel and dayAggregationPeriod {
-    totalTimeframes = totalTimeframes + 3;  # 5 SMA, 21 EMA, 200 SMA
-    bullishSignals = bullishSignals + (if dayAboveShortSMA then 1 else 0);
-    bullishSignals = bullishSignals + (if dayAboveEMA then 1 else 0);
-    bullishSignals = bullishSignals + (if dayAboveLongSMA then 1 else 0);
-}
-
-if FourHourLabel and fourHourAggregationPeriod {
-    totalTimeframes = totalTimeframes + 3;
-    bullishSignals = bullishSignals + (if fourHourAboveShortSMA then 1 else 0);
-    bullishSignals = bullishSignals + (if fourHourAboveEMA then 1 else 0);
-    bullishSignals = bullishSignals + (if fourHourAboveLongSMA then 1 else 0);
-}
-
-if HourLabel and hourAggregationPeriod {
-    totalTimeframes = totalTimeframes + 3;
-    bullishSignals = bullishSignals + (if hourAboveShortSMA then 1 else 0);
-    bullishSignals = bullishSignals + (if hourAboveEMA then 1 else 0);
-    bullishSignals = bullishSignals + (if hourAboveLongSMA then 1 else 0);
-}
-
-if ThirtyMinLabel and thirtyMinAggregationPeriod {
-    totalTimeframes = totalTimeframes + 3;
-    bullishSignals = bullishSignals + (if thirtyMinAboveShortSMA then 1 else 0);
-    bullishSignals = bullishSignals + (if thirtyMinAboveEMA then 1 else 0);
-    bullishSignals = bullishSignals + (if thirtyMinAboveLongSMA then 1 else 0);
-}
-
-if FifteenMinLabel and fifteenMinAggregationPeriod {
-    totalTimeframes = totalTimeframes + 3;
-    bullishSignals = bullishSignals + (if fifteenMinAboveShortSMA then 1 else 0);
-    bullishSignals = bullishSignals + (if fifteenMinAboveEMA then 1 else 0);
-    bullishSignals = bullishSignals + (if fifteenMinAboveLongSMA then 1 else 0);
-}
-
-if FiveMinLabel and fiveMinAggregationPeriod {
-    totalTimeframes = totalTimeframes + 3;
-    bullishSignals = bullishSignals + (if fiveMinAboveShortSMA then 1 else 0);
-    bullishSignals = bullishSignals + (if fiveMinAboveEMA then 1 else 0);
-    bullishSignals = bullishSignals + (if fiveMinAboveLongSMA then 1 else 0);
-}
-
-if ThreeMinLabel and threeMinAggregationPeriod {
-    totalTimeframes = totalTimeframes + 3;
-    bullishSignals = bullishSignals + (if threeMinAboveShortSMA then 1 else 0);
-    bullishSignals = bullishSignals + (if threeMinAboveEMA then 1 else 0);
-    bullishSignals = bullishSignals + (if threeMinAboveLongSMA then 1 else 0);
-}
-
-if TwoMinLabel and twoMinAggregationPeriod {
-    totalTimeframes = totalTimeframes + 3;
-    bullishSignals = bullishSignals + (if twoMinAboveShortSMA then 1 else 0);
-    bullishSignals = bullishSignals + (if twoMinAboveEMA then 1 else 0);
-    bullishSignals = bullishSignals + (if twoMinAboveLongSMA then 1 else 0);
-}
-
-if OneMinLabel and oneMinAggregationPeriod {
-    totalTimeframes = totalTimeframes + 3;
-    bullishSignals = bullishSignals + (if oneMinAboveShortSMA then 1 else 0);
-    bullishSignals = bullishSignals + (if oneMinAboveEMA then 1 else 0);
-    bullishSignals = bullishSignals + (if oneMinAboveLongSMA then 1 else 0);
-}
-
-# Add VWAP to the score if enabled
-if VWAPLabel {
-    totalTimeframes = totalTimeframes + 1;
-    bullishSignals = bullishSignals + (if priceAboveDailyVWAP then 1 else 0);
-}
-
-# Calculate percentage of bullish signals
-def bullishPercentage = if totalTimeframes > 0 then (bullishSignals * 100) / totalTimeframes else 0;
-
-# Add label showing alignment percentage
-AddLabel(
-    ShowBackgroundColor, 
-    "Trend Alignment: " + Round(bullishPercentage, 0) + "%", 
-    if bullishPercentage >= 80 then GlobalColor("Strong_Bullish")
-    else if bullishPercentage >= 60 then GlobalColor("Moderate_Bullish")
-    else if bullishPercentage >= 40 then GlobalColor("Neutral")
-    else if bullishPercentage >= 20 then GlobalColor("Moderate_Bearish")
-    else GlobalColor("Strong_Bearish")
-);
-
-# Set background color based on trend alignment
-if ShowBackgroundColor {
-    if bullishPercentage >= 80 {
-        AssignBackgroundColor(GlobalColor("Strong_Bullish"));
-    }
-    else if bullishPercentage >= 60 {
-        AssignBackgroundColor(GlobalColor("Moderate_Bullish"));
-    }
-    else if bullishPercentage >= 40 {
-        AssignBackgroundColor(GlobalColor("Neutral"));
-    }
-    else if bullishPercentage >= 20 {
-        AssignBackgroundColor(GlobalColor("Moderate_Bearish"));
-    }
-    else {
-        AssignBackgroundColor(GlobalColor("Strong_Bearish"));
-    }
-}
