@@ -1,0 +1,57 @@
+# Cumulative VOLD (Volume Differential)
+# Based on Mobius' Cumulative TICK
+# V04.08.2025
+#
+# Note: This script accumulates the VOLD values throughout the trading day.
+# VOLD typically ranges from around -10 to +10 in the data feed.
+
+declare lower;
+
+input VSYMBOL = {default "$VOLD", "$VOLQ", "$VOLSP", "$VOLNDX"};
+input openRTH  = 0930;
+input closeRTH = 1600;
+input DisplayLabel = yes;
+input AlertOn = yes;
+input VoldAlertThreshold = 10;  # Adjusted for typical VOLD range of -10 to +10
+
+def Active = if secondsFromTime(openRTH) > 0 and
+               secondsTillTime(closeRTH) >= 0
+            then 1
+            else 0;
+
+# Get the current VOLD value from the selected symbol
+def Vold = close(Symbol = VSYMBOL);
+
+# Calculate cumulative VOLD:
+# - Returns NaN outside trading hours
+# - Resets to current VOLD value at market open
+# - Adds each new VOLD reading to the running total during trading hours
+def cumVold = if !Active
+                then double.nan
+                else if Active and !Active[1]
+                     then Vold
+                     else if Active
+                          then cumVold[1] + Vold
+                          else cumVold[1];
+
+plot cV = cumVold;
+cV.SetLineWeight(3);
+cV.SetPaintingStrategy(PaintingStrategy.Points);
+cV.AssignValueColor(if !isNaN(cV) and isNaN(cV[1])
+                     then color.blue
+                     else if cV > cV[1]
+                          then color.cyan
+                          else color.red);
+
+plot zero = if isNaN(close)
+             then double.nan
+             else 0;
+zero.SetDefaultColor(color.gray);
+
+AddLabel(DisplayLabel, "VOLD = " + Vold, 
+       if Vold < 0 
+       then color.red
+       else color.cyan);
+
+# Alert when VOLD crosses above/below the threshold (default ±10)
+Alert(AlertOn and ((Vold crosses above VoldAlertThreshold) or (Vold crosses below -VoldAlertThreshold)), "VOLD ALERT", Alert.Bar, Sound.Bell);
