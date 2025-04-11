@@ -82,41 +82,30 @@ AddLabel(
 
 ## 4-Hour Timeframe
 def fourHourPrice;
-def fourHourShortSMA;  # Added 5 SMA
 def fourHourEMA;
 def fourHourLongSMA;
-def fourHourAboveShortSMA;  # Added 5 SMA check
 def fourHourAboveEMA;
 def fourHourAboveLongSMA;
 def fourHourAggregationPeriod;
 
 if GetAggregationPeriod() <= AggregationPeriod.FOUR_HOURS {
     fourHourPrice = close(period = "4 Hours");
-    fourHourShortSMA = Average(fourHourPrice, shortSMALength);  # Added 5 SMA
     fourHourEMA = ExpAverage(fourHourPrice, emaLength);
     fourHourLongSMA = Average(fourHourPrice, longSMALength);
-    fourHourAboveShortSMA = fourHourPrice > fourHourShortSMA;  # Added 5 SMA check
     fourHourAboveEMA = fourHourPrice > fourHourEMA;
     fourHourAboveLongSMA = fourHourPrice > fourHourLongSMA;
     fourHourAggregationPeriod = 1;
 }
 else {
     fourHourPrice = 0;
-    fourHourShortSMA = 0;  # Added 5 SMA
     fourHourEMA = 0;
     fourHourLongSMA = 0;
-    fourHourAboveShortSMA = 0;  # Added 5 SMA check
     fourHourAboveEMA = 0;
     fourHourAboveLongSMA = 0;
     fourHourAggregationPeriod = 0;
 }
 
 # Add labels with appropriate colors based on conditions
-AddLabel(
-    FourHourLabel and fourHourAggregationPeriod, 
-    "4h5", 
-    if fourHourAboveShortSMA then GlobalColor("Above_MA") else GlobalColor("Below_MA")
-);
 
 AddLabel(
     FourHourLabel and fourHourAggregationPeriod, 
@@ -132,41 +121,30 @@ AddLabel(
 
 ## 1-Hour Timeframe
 def hourPrice;
-def hourShortSMA;  # Added 5 SMA
 def hourEMA;
 def hourLongSMA;
-def hourAboveShortSMA;  # Added 5 SMA check
 def hourAboveEMA;
 def hourAboveLongSMA;
 def hourAggregationPeriod;
 
 if GetAggregationPeriod() <= AggregationPeriod.HOUR {
     hourPrice = close(period = "1 Hour");
-    hourShortSMA = Average(hourPrice, shortSMALength);  # Added 5 SMA
     hourEMA = ExpAverage(hourPrice, emaLength);
     hourLongSMA = Average(hourPrice, longSMALength);
-    hourAboveShortSMA = hourPrice > hourShortSMA;  # Added 5 SMA check
     hourAboveEMA = hourPrice > hourEMA;
     hourAboveLongSMA = hourPrice > hourLongSMA;
     hourAggregationPeriod = 1;
 }
 else {
     hourPrice = 0;
-    hourShortSMA = 0;  # Added 5 SMA
     hourEMA = 0;
     hourLongSMA = 0;
-    hourAboveShortSMA = 0;  # Added 5 SMA check
     hourAboveEMA = 0;
     hourAboveLongSMA = 0;
     hourAggregationPeriod = 0;
 }
 
 # Add labels with appropriate colors based on conditions
-AddLabel(
-    HourLabel and hourAggregationPeriod, 
-    "1h5", 
-    if hourAboveShortSMA then GlobalColor("Above_MA") else GlobalColor("Below_MA")
-);
 
 AddLabel(
     HourLabel and hourAggregationPeriod, 
@@ -183,41 +161,30 @@ AddLabel(
 
 ## 15-Minute Timeframe
 def fifteenMinPrice;
-def fifteenMinShortSMA;  # Added 5 SMA
 def fifteenMinEMA;
 def fifteenMinLongSMA;
-def fifteenMinAboveShortSMA;  # Added 5 SMA check
 def fifteenMinAboveEMA;
 def fifteenMinAboveLongSMA;
 def fifteenMinAggregationPeriod;
 
 if GetAggregationPeriod() <= AggregationPeriod.FIFTEEN_MIN {
     fifteenMinPrice = close(period = "15 Min");
-    fifteenMinShortSMA = Average(fifteenMinPrice, shortSMALength);  # Added 5 SMA
     fifteenMinEMA = ExpAverage(fifteenMinPrice, emaLength);
     fifteenMinLongSMA = Average(fifteenMinPrice, longSMALength);
-    fifteenMinAboveShortSMA = fifteenMinPrice > fifteenMinShortSMA;  # Added 5 SMA check
     fifteenMinAboveEMA = fifteenMinPrice > fifteenMinEMA;
     fifteenMinAboveLongSMA = fifteenMinPrice > fifteenMinLongSMA;
     fifteenMinAggregationPeriod = 1;
 }
 else {
     fifteenMinPrice = 0;
-    fifteenMinShortSMA = 0;  # Added 5 SMA
     fifteenMinEMA = 0;
     fifteenMinLongSMA = 0;
-    fifteenMinAboveShortSMA = 0;  # Added 5 SMA check
     fifteenMinAboveEMA = 0;
     fifteenMinAboveLongSMA = 0;
     fifteenMinAggregationPeriod = 0;
 }
 
 # Add labels with appropriate colors based on conditions
-AddLabel(
-    FifteenMinLabel and fifteenMinAggregationPeriod, 
-    "15m5", 
-    if fifteenMinAboveShortSMA then GlobalColor("Above_MA") else GlobalColor("Below_MA")
-);
 
 AddLabel(
     FifteenMinLabel and fifteenMinAggregationPeriod, 
@@ -233,41 +200,30 @@ AddLabel(
 
 ## 5-Minute Timeframe
 def fiveMinPrice;
-def fiveMinShortSMA;  # Added 5 SMA
 def fiveMinEMA;
 def fiveMinLongSMA;
-def fiveMinAboveShortSMA;  # Added 5 SMA check
 def fiveMinAboveEMA;
 def fiveMinAboveLongSMA;
 def fiveMinAggregationPeriod;
 
 if GetAggregationPeriod() <= AggregationPeriod.FIVE_MIN {
     fiveMinPrice = close(period = "5 Min");
-    fiveMinShortSMA = Average(fiveMinPrice, shortSMALength);  # Added 5 SMA
     fiveMinEMA = ExpAverage(fiveMinPrice, emaLength);
     fiveMinLongSMA = Average(fiveMinPrice, longSMALength);
-    fiveMinAboveShortSMA = fiveMinPrice > fiveMinShortSMA;  # Added 5 SMA check
     fiveMinAboveEMA = fiveMinPrice > fiveMinEMA;
     fiveMinAboveLongSMA = fiveMinPrice > fiveMinLongSMA;
     fiveMinAggregationPeriod = 1;
 }
 else {
     fiveMinPrice = 0;
-    fiveMinShortSMA = 0;  # Added 5 SMA
     fiveMinEMA = 0;
     fiveMinLongSMA = 0;
-    fiveMinAboveShortSMA = 0;  # Added 5 SMA check
     fiveMinAboveEMA = 0;
     fiveMinAboveLongSMA = 0;
     fiveMinAggregationPeriod = 0;
 }
 
 # Add labels with appropriate colors based on conditions
-AddLabel(
-    FiveMinLabel and fiveMinAggregationPeriod, 
-    "5m5", 
-    if fiveMinAboveShortSMA then GlobalColor("Above_MA") else GlobalColor("Below_MA")
-);
 
 AddLabel(
     FiveMinLabel and fiveMinAggregationPeriod, 
