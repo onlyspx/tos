@@ -56,27 +56,27 @@ else {
 
 # Add labels with appropriate colors based on conditions
 AddLabel(
-    DayLabel and dayAggregationPeriod, 
-    "D5", 
+    DayLabel and dayAggregationPeriod,
+    "D5:  " + Round(dayShortSMA, 0),
     if dayAboveShortSMA then GlobalColor("Above_MA") else GlobalColor("Below_MA")
 );
 
 AddLabel(
-    DayLabel and dayAggregationPeriod, 
-    "D21", 
+    DayLabel and dayAggregationPeriod,
+    "D21:  " + Round(dayEMA, 0),
     if dayAboveEMA then GlobalColor("Above_MA") else GlobalColor("Below_MA")
 );
 
 AddLabel(
-    DayLabel and dayAggregationPeriod, 
-    "D200", 
+    DayLabel and dayAggregationPeriod,
+    "D200:  " + Round(dayLongSMA, 0),
     if dayAboveLongSMA then GlobalColor("Above_MA") else GlobalColor("Below_MA")
 );
 
 # Only show VWAP label once
 AddLabel(
-    VWAPLabel, 
-    "VWAP", 
+    VWAPLabel,
+    "VWAP:  " + Round(dailyVWAP, 0),
     if priceAboveDailyVWAP then GlobalColor("Above_MA") else GlobalColor("Below_MA")
 );
 
@@ -108,14 +108,14 @@ else {
 # Add labels with appropriate colors based on conditions
 
 AddLabel(
-    FourHourLabel and fourHourAggregationPeriod, 
-    "4h21", 
+    FourHourLabel and fourHourAggregationPeriod,
+    "4h21:  " + Round(fourHourEMA, 0),
     if fourHourAboveEMA then GlobalColor("Above_MA") else GlobalColor("Below_MA")
 );
 
 AddLabel(
-    FourHourLabel and fourHourAggregationPeriod, 
-    "4h200", 
+    FourHourLabel and fourHourAggregationPeriod,
+    "4h200:  " + Round(fourHourLongSMA, 0),
     if fourHourAboveLongSMA then GlobalColor("Above_MA") else GlobalColor("Below_MA")
 );
 
@@ -147,14 +147,14 @@ else {
 # Add labels with appropriate colors based on conditions
 
 AddLabel(
-    HourLabel and hourAggregationPeriod, 
-    "1h21", 
+    HourLabel and hourAggregationPeriod,
+    "1h21:  " + Round(hourEMA, 0),
     if hourAboveEMA then GlobalColor("Above_MA") else GlobalColor("Below_MA")
 );
 
 AddLabel(
-    HourLabel and hourAggregationPeriod, 
-    "1h200", 
+    HourLabel and hourAggregationPeriod,
+    "1h200:  " + Round(hourLongSMA, 0),
     if hourAboveLongSMA then GlobalColor("Above_MA") else GlobalColor("Below_MA")
 );
 
@@ -187,14 +187,14 @@ else {
 # Add labels with appropriate colors based on conditions
 
 AddLabel(
-    FifteenMinLabel and fifteenMinAggregationPeriod, 
-    "15m21", 
+    FifteenMinLabel and fifteenMinAggregationPeriod,
+    "15m21:  " + Round(fifteenMinEMA, 0),
     if fifteenMinAboveEMA then GlobalColor("Above_MA") else GlobalColor("Below_MA")
 );
 
 AddLabel(
-    FifteenMinLabel and fifteenMinAggregationPeriod, 
-    "15m200", 
+    FifteenMinLabel and fifteenMinAggregationPeriod,
+    "15m200:  " + Round(fifteenMinLongSMA, 0),
     if fifteenMinAboveLongSMA then GlobalColor("Above_MA") else GlobalColor("Below_MA")
 );
 
@@ -226,13 +226,13 @@ else {
 # Add labels with appropriate colors based on conditions
 
 AddLabel(
-    FiveMinLabel and fiveMinAggregationPeriod, 
-    "5m21", 
+    FiveMinLabel and fiveMinAggregationPeriod,
+    "5m21:  " + Round(fiveMinEMA, 0),
     if fiveMinAboveEMA then GlobalColor("Above_MA") else GlobalColor("Below_MA")
 );
 
 AddLabel(
-    FiveMinLabel and fiveMinAggregationPeriod, 
-    "5m200", 
+    FiveMinLabel and fiveMinAggregationPeriod,
+    "5m200:  " + Round(fiveMinLongSMA, 0),
     if fiveMinAboveLongSMA then GlobalColor("Above_MA") else GlobalColor("Below_MA")
 );
