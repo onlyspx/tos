@@ -1,0 +1,78 @@
+#
+# TD Ameritrade IP Company, Inc. (c) 2008-2021
+# Created by Danno Sheehy.  ShadowTrader reserves all rights to this script.  
+# #ShadowTrader (Copyright ShadowTrader), a division of ShadowTrader Technologies, LLC. 2021. All rights reserved. This ShadowTrader Script is for educational purposes only.  ShadowTrader is not responsible for the use,  functionality, or the performance of this script. This work is copyrighted by ShadowTrader and all rights of this work under the license are reserved. Use of the ShadowTrader licensed code is for private use only and any other uses are prohibited. By exercising any of the rights herein, you are accepting the terms of this license. You have a non-exclusive right to use or alter the ShadowTrader code. Use of this ShadowTrader Script other than as provided for in this license is prohibited. 
+
+# ANY REDISTRIBUTION IS STRICTLY PROHIBITED AND RIGHTS WILL BE ENFORCED.
+
+declare lower;
+input Open_Time = 930;
+
+
+input XLK_WT = 30.70;
+input XLF_WT = 14.10;
+input XLY_WT = 11.40;
+input XLV_WT = 10.50;
+input XLC_WT = 09.90;
+input XLI_WT = 08.30;
+input XLP_WT = 05.50;
+input XLE_WT = 03.10;
+input XLU_WT = 02.30;
+input XLRE_WT = 02.10;
+input XLB_WT = 01.90;
+
+
+def XLP_PRnow = (close("XLP") - close("XLP")[1]) / close("XLP")[1] * XLP_WT / 100;
+
+def XLU_PRnow = (close("XLU") - close("XLU")[1]) / close("XLU")[1] * XLU_WT / 100;
+
+def XLC_PRnow = (close("XLC") - close("XLC")[1]) / close("XLC")[1] * XLC_WT / 100;
+
+def XLF_PRnow = (close("XLF") - close("XLF")[1]) / close("XLF")[1] * XLF_WT / 100;
+
+def XLB_PRnow = (close("XLB") - close("XLB")[1]) / close("XLB")[1] * XLB_WT / 100;
+
+def XLI_PRnow = (close("XLI") - close("XLI")[1]) / close("XLI")[1] * XLI_WT / 100;
+
+def XLE_PRnow = (close("XLE") - close("XLE")[1]) / close("XLE")[1] * XLE_WT / 100;
+
+def XLRE_PRnow = (close("XLRE") - close("XLRE")[1]) / close("XLRE")[1] * XLRE_WT / 100;
+
+def XLV_PRnow = (close("XLV") - close("XLV")[1]) / close("XLV")[1] * XLV_WT / 100;
+
+def XLK_PRnow = (close("XLK") - close("XLK")[1]) / close("XLK")[1] * XLK_WT / 100;
+
+def XLY_PRnow = (close("XLY") - close("XLY")[1]) / close("XLY")[1] * XLY_WT / 100;
+
+def CAD = XLP_PRnow + XLU_PRnow + XLC_PRnow + XLF_PRnow + XLB_PRnow + XLI_PRnow + XLE_PRnow + XLRE_PRnow + XLV_PRnow + XLK_PRnow + XLY_PRnow;
+
+
+
+def Divider = 6.5 * 60 / GetAggregationPeriod() * 200 * 500;
+
+def notFirstBar = if SecondsFromTime(Open_Time) >= 0 and SecondsFromTime(Open_Time)[1] >= 0 then 1 else 0;
+
+
+def X = if GetAggregationPeriod() == AggregationPeriod.MIN then 70000 else  if GetAggregationPeriod() == AggregationPeriod.TWO_MIN then 60000 else if GetAggregationPeriod() == AggregationPeriod.THREE_MIN then 55000 else if GetAggregationPeriod() == AggregationPeriod.FOUR_MIN then 50000 else  if GetAggregationPeriod() == AggregationPeriod.FIVE_MIN then 45000 else if GetAggregationPeriod() == AggregationPeriod.TEN_MIN then 37500
+ else if GetAggregationPeriod() == AggregationPeriod.FIFTEEN_MIN then 35000 else if GetAggregationPeriod() == AggregationPeriod.THIRTY_MIN then 32500  else if GetAggregationPeriod() == AggregationPeriod.HOUR then 27500 else Double.NaN;
+
+
+def CT = if  GetDay() != GetDay()[1] then 0 else if notFirstBar then CT[1] + CAD else 0;
+plot Weighted_AD = if !IsNaN(CAD) then CT * X else Double.NaN;
+
+
+plot zero = 0;
+zero.SetDefaultColor(Color.WHITE);
+zero.HideBubble();
+zero.HideTitle();
+Weighted_AD.DefineColor(“Positive”, Color.MAGENTA);
+Weighted_AD.DefineColor(“Negative”, Color.ORANGE);
+Weighted_AD.AssignValueColor(if Weighted_AD >= Weighted_AD [1] then Weighted_AD.Color(“Positive”) else Weighted_AD.Color(“Negative”));
+
+
+
+def CAD2 = 11 * (XLP_PRnow / xlp_wt + XLU_PRnow / xlu_wt + XLC_PRnow / xlc_wt + XLF_PRnow / xlf_wt + XLB_PRnow / xlb_wt + XLI_PRnow / xli_wt + XLE_PRnow / xle_wt + XLRE_PRnow / xlre_wt + XLV_PRnow / xlv_wt + XLK_PRnow / xlk_wt + XLY_PRnow / xly_wt);
+
+def CT2 = if  GetDay() != GetDay()[1] then 0 else if notFirstBar then CT2[1] + CAD2 else 0;
+plot Non_Weighted_AD = if !IsNaN(CAD2) then CT2 * X
+ else Double.NaN;
