@@ -3,6 +3,7 @@
 
 ##Global Variables
 input shortSMALength = 5;   # Added 5 SMA
+input ema8Length = 8;       # Added 8 EMA
 input emaLength = 21;
 input longSMALength = 200;
 input averageType = AverageType.EXPONENTIAL;
@@ -26,9 +27,11 @@ def priceAboveDailyVWAP = close > dailyVWAP;
 ## Daily Timeframe
 def dayPrice;
 def dayShortSMA;  # Added 5 SMA
+def day8EMA;      # Added 8 EMA
 def dayEMA;
 def dayLongSMA;
 def dayAboveShortSMA;  # Added 5 SMA check
+def dayAbove8EMA;      # Added 8 EMA check
 def dayAboveEMA;
 def dayAboveLongSMA;
 def dayAggregationPeriod;
@@ -36,9 +39,11 @@ def dayAggregationPeriod;
 if GetAggregationPeriod() <= AggregationPeriod.DAY {
     dayPrice = close(period = "Day");
     dayShortSMA = Average(dayPrice, shortSMALength);  # Added 5 SMA
+    day8EMA = ExpAverage(dayPrice, ema8Length);       # Added 8 EMA
     dayEMA = ExpAverage(dayPrice, emaLength);
     dayLongSMA = Average(dayPrice, longSMALength);
     dayAboveShortSMA = dayPrice > dayShortSMA;  # Added 5 SMA check
+    dayAbove8EMA = dayPrice > day8EMA;          # Added 8 EMA check
     dayAboveEMA = dayPrice > dayEMA;
     dayAboveLongSMA = dayPrice > dayLongSMA;
     dayAggregationPeriod = 1;
@@ -46,9 +51,11 @@ if GetAggregationPeriod() <= AggregationPeriod.DAY {
 else {
     dayPrice = 0;
     dayShortSMA = 0;  # Added 5 SMA
+    day8EMA = 0;      # Added 8 EMA
     dayEMA = 0;
     dayLongSMA = 0;
     dayAboveShortSMA = 0;  # Added 5 SMA check
+    dayAbove8EMA = 0;      # Added 8 EMA check
     dayAboveEMA = 0;
     dayAboveLongSMA = 0;
     dayAggregationPeriod = 0;
@@ -60,6 +67,12 @@ AddLabel(
     "D5:  " + Round(dayShortSMA, 0),
     if dayAboveShortSMA then GlobalColor("Above_MA") else GlobalColor("Below_MA")
 );
+AddLabel(
+    DayLabel and dayAggregationPeriod,
+    "D8:  " + Round(day8EMA, 0),
+    if dayAbove8EMA then GlobalColor("Above_MA") else GlobalColor("Below_MA")
+);
+
 
 AddLabel(
     DayLabel and dayAggregationPeriod,
