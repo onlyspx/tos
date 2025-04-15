@@ -1,0 +1,444 @@
+# Modified to correct label color from 0 to -.5% to lighter color. Defined color 1 as red and color 2 as pink. February 9, 2023
+
+# ST_SectorBox
+
+# Created by Randy Haben for Shadow Trader based on an older ST sector box script
+
+# Copyright (c) 2022 Shadow Trader and Karstware Studios
+
+ 
+
+# This script is intended strictly for educational use. No claims are made as to its accuracy. Trades made based on this indicator are solely the responsibility of the trader.
+
+ 
+
+#hint: \nThis is an upgrade to the Shadow Trader Sector Box study. It tracks the percentage change in each of the 11 sectors that comprise the S&P 500.\n\n  - The values are only updated during Regular Trading Hours. But they remain visible as fixed values between sessions.\n\n  - The label colors can be changed as needed for accessibility or preference. Lighter colors indicate minor price changes since open. \n\n  - You may update sector weights in the settings. The values will be correct, but the display order will not change until the script source code is updated.</li>
+
+ 
+
+declare lower;
+
+ 
+
+# Snippet for determining whether the current bar is in Regular Trading Hours
+
+# Begin KW_RTH
+
+script na {
+
+    plot na = Double.NaN;
+
+}
+
+script date {
+
+    plot date = GetYYYYMMDD();
+
+}
+
+script rthStart {
+
+    plot rthStart = RegularTradingStart(date()) / AggregationPeriod.MIN;
+
+}
+
+script rthEnd {
+
+    plot rthEnd = RegularTradingEnd(date())  / AggregationPeriod.MIN;
+
+}
+
+script firstBar {
+
+    plot firstBar = BarNumber() == 1;
+
+}
+
+script rth {
+
+    plot rth;
+
+    plot tod = (GetTime() / AggregationPeriod.MIN);
+
+    rth = tod between rthStart() and rthEnd();
+
+}
+
+script globex {
+
+    plot globex = !rth();
+
+}
+
+script intraDay {
+
+    plot intraDay = GetAggregationPeriod() < AggregationPeriod.DAY;
+
+}
+
+script datechanged {
+
+    plot datechanged = date() != date()[1];
+
+}
+
+script rthchanged {
+
+    plot rthchanged = rth() != rth()[1];
+
+}
+
+script rthstarted {
+
+    plot rthstarted;
+
+    rthstarted = rth() and (rthchanged() or datechanged());
+
+}
+
+script rthended {
+
+    plot rthended;
+
+    plot rth = rth();
+
+   rthended = rthStarted() or (!rth() and rthchanged());
+
+}
+
+ 
+
+# End KW_RTH
+
+ 
+
+AddLabel(!intraDay(), "Not available on this time frame", Color.GRAY);
+
+def show = IntraDay();
+
+ 
+
+DefineGlobalColor("1", Color.RED);
+
+DefineGlobalColor("2", Color.PINK);
+
+DefineGlobalColor("3", Color.LIGHT_GREEN);
+
+DefineGlobalColor("4", Color.GREEN);
+
+ 
+
+script opn {
+
+    plot r;
+
+    input cur = 0;
+
+    input prev = 0;
+
+    r = If(
+
+    !intraDay(), Double.NaN,
+
+    If(
+
+      firstBar(),
+
+      If(rth(), cur, Double.NaN),
+
+      If(rthStarted() and !IsNaN(cur), cur, prev)
+
+    )
+
+);
+
+}
+
+ 
+
+script cls {
+
+    input cur = 0;
+
+    input prev = 0;
+
+ 
+
+    plot cls;
+
+    plot rth = rth();
+
+ 
+
+    cls = If(
+
+    !intraDay(), Double.NaN,
+
+    If(
+
+      firstBar(),
+
+      If(rth, cur, Double.NaN),
+
+      If(rth and !IsNaN(cur), cur, prev)
+
+    )
+
+  );
+
+}
+
+ 
+
+script pct {
+
+    plot r;
+
+    input op = 0;
+
+    input cl = 0;
+
+ 
+
+    plot diff = cl - op;
+
+    r = if(isNan(op) or isNaN(cl), 0, Round((diff / op) * 100, 2));
+
+}
+
+ 
+
+#hint xlk: You may update sector weights in the settings. The values will be correct, but the display order will not change until the script source code is updated.
+
+ 
+
+input XLK = 31.98;
+
+input XLV = 11.86;
+
+input XLF = 12.59;
+
+input XLY = 9.87;
+
+input XLI = 8.23;
+
+input XLC = 9.27;
+
+input XLP = 5.88;
+
+input XLE = 3.66;
+
+input XLU = 2.31;
+
+input XLB = 2.2;
+
+input XLRE = 2.15;
+
+
+def ko; ko = opn(open("XLK"), ko[1]);
+
+def kc; kc = cls(close("XLK"), kc[1]);
+
+def kp = pct(ko, kc);
+
+ 
+
+AddLabel(show, "XLK "  + AsText(kp) + "%", if (kp < -.5) then GlobalColor("1")
+
+    else if kp < 0 then GlobalColor("2")
+
+    else if kp > .5 then GlobalColor("4")
+
+    else GlobalColor("3")
+
+);
+
+ 
+
+def vo; vo = opn(open("XLV"), vo[1]);
+
+def vc; vc = cls(close("XLV"), vc[1]);
+
+def vp = pct(vo, vc);
+
+ 
+
+AddLabel(show, "XLV "  + AsText(vp) + "%", if (vp < -.5) then GlobalColor("1")
+
+    else if vp < 0 then GlobalColor("2")
+
+    else if vp > .5 then GlobalColor("4")
+
+    else GlobalColor("3")
+
+);
+
+def fo; fo = opn(open("XLF"), fo[1]);
+
+def fc; fc = cls(close("XLF"), fc[1]);
+
+def fp = pct(fo, fc);
+
+ 
+
+AddLabel(show, "XLF "  + AsText(fp) + "%", if (fp < -.5) then GlobalColor("1")
+
+    else if fp < 0 then GlobalColor("2")
+
+    else if fp > .5 then GlobalColor("4")
+
+    else GlobalColor("3")
+
+);
+
+ 
+
+def yo; yo = opn(open("XLY"), yo[1]);
+
+def yc; yc = cls(close("XLY"), yc[1]);
+
+def yp = pct(yo, yc);
+
+ 
+
+AddLabel(show, "XLY "  + AsText(yp) + "%", if (yp < -.5) then GlobalColor("1")
+
+    else if yp < 0 then GlobalColor("2")
+
+    else if yp > .5 then GlobalColor("4")
+
+    else GlobalColor("3")
+
+);
+
+ 
+
+def io; io = opn(open("XLI"), io[1]);
+
+def ic; ic = cls(close("XLI"), ic[1]);
+
+def ip = pct(io, ic);
+
+ 
+
+AddLabel(show, "XLI "  + AsText(ip) + "%", if (ip < -.5) then GlobalColor("1")
+
+    else if ip < 0 then GlobalColor("2")
+
+    else if ip > .5 then GlobalColor("4")
+
+    else GlobalColor("3")
+
+); 
+
+def co; co = opn(open("XLC"), co[1]);
+
+def cc; cc = cls(close("XLC"), cc[1]);
+
+def cp = pct(co, cc);
+
+ 
+
+AddLabel(show, "XLC " + AsText(cp) + "%", if (cp < -.5) then GlobalColor("1")
+
+    else if cp < 0 then GlobalColor("2")
+
+    else if cp > .5 then GlobalColor("4")
+
+    else GlobalColor("3")
+
+);
+
+
+def po; po = opn(open("XLP"), po[1]);
+
+def pc; pc = cls(close("XLP"), pc[1]);
+
+def pp = pct(po, pc);
+
+ 
+
+AddLabel(show, "XLP "  + AsText(pp) + "%", if (pp < -.5) then GlobalColor("1")
+
+    else if pp < 0 then GlobalColor("2")
+
+    else if pp > .5 then GlobalColor("4")
+
+    else GlobalColor("3")
+
+);
+
+ 
+
+def eo; eo = opn(open("XLE"), eo[1]);
+
+def ec; ec = cls(close("XLE"), ec[1]);
+
+def ep = pct(eo, ec);
+
+ 
+
+AddLabel(show, "XLE "  + AsText(ep) + "%", if (ep < -.5) then GlobalColor("1")
+
+    else if ep < 0 then GlobalColor("2")
+
+    else if ep > .5 then GlobalColor("4")
+
+    else GlobalColor("3")
+
+);
+
+ 
+def uo; uo = opn(open("XLU"), uo[1]);
+
+def uc; uc = cls(close("XLU"), uc[1]);
+
+def up = pct(uo, uc);
+
+ 
+
+AddLabel(show, "XLU "  + AsText(up) + "%", if (up < -.5) then GlobalColor("1")
+
+    else if up < 0 then GlobalColor("2")
+
+    else if up > .5 then GlobalColor("4")
+
+    else GlobalColor("3")
+
+);
+
+def bo; bo = opn(open("XLB"), bo[1]);
+
+def bc; bc = cls(close("XLB"), bc[1]);
+
+def bp = pct(bo, bc);
+
+ 
+
+AddLabel(show, "XLB "  + AsText(bp) + "%", if (bp < -.5) then GlobalColor("1")
+
+    else if bp < 0 then GlobalColor("2")
+
+    else if bp > .5 then GlobalColor("4")
+
+    else GlobalColor("3")
+
+);
+
+def reo; reo = opn(open("XLRE"), reo[1]);
+
+def recl; recl = cls(close("XLRE"), recl[1]);
+
+def rep = pct(reo, recl);
+
+ 
+
+AddLabel(show, "XLRE "  + AsText(rep) + "%", if (rep < -.5) then GlobalColor("1")
+
+    else if rep < 0 then GlobalColor("2")
+
+    else if rep > .5 then GlobalColor("4")
+
+    else GlobalColor("3")
+
+);

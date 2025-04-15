@@ -21,9 +21,9 @@ input VWAPLabel = yes;
 DefineGlobalColor("Below_MA", Color.RED);
 DefineGlobalColor("Above_MA", Color.DARK_GREEN);
 
-# Calculate Daily VWAP once for all timeframes
-def dailyVWAP = VWAP(period = "Day");
-def priceAboveDailyVWAP = close > dailyVWAP;
+# Calculate Daily VWAP (skip for SPX/indices)
+def dailyVWAP = if VWAPLabel then VWAP(period = "Day") else 0;
+def priceAboveDailyVWAP = if VWAPLabel then close > dailyVWAP else no;
 
 ## Daily Timeframe
 def dayPrice;
@@ -162,9 +162,9 @@ else {
     fiveMinAggregationPeriod = 0;
 }
 
-# Calculate weighted score
+# Calculate weighted score - handles SPX (no VWAP) by making it optional
 def score = 
-    (if priceAboveDailyVWAP then 2 else -2) +  # VWAP gets 2 points
+    (if VWAPLabel and priceAboveDailyVWAP then 2 else if VWAPLabel then -2 else 0) +  # VWAP gets 2 points if enabled
     (if dayAboveEMA then 2 else -2) +          # Daily 21 EMA gets 2 points
     (if dayAboveLongSMA then 1 else -1) +      # Daily 200 SMA gets 1 point
     (if fourHourAboveEMA then 1 else -1) +     # 4H 21 EMA gets 1 point
@@ -182,8 +182,8 @@ AddLabel(
 # Add other labels in the specified order
 AddLabel(
     VWAPLabel,
-    "VWAP: " + Round(dailyVWAP, 0) + " ",
-    if priceAboveDailyVWAP then GlobalColor("Above_MA") else GlobalColor("Below_MA")
+    if VWAPLabel then "VWAP: " + Round(dailyVWAP, 0) + " " else "VWAP: N/A ",
+    if !VWAPLabel then Color.GRAY else if priceAboveDailyVWAP then GlobalColor("Above_MA") else GlobalColor("Below_MA")
 );
 
 # 2. Daily Labels
