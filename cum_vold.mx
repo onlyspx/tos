@@ -52,6 +52,3 @@ AddLabel(DisplayLabel, "VOLD = " + Vold,
        if Vold < 0 
        then color.red
        else color.cyan);
-
-# Alert when VOLD crosses above/below the threshold (default ±10)
-Alert(AlertOn and ((Vold crosses above VoldAlertThreshold) or (Vold crosses below -VoldAlertThreshold)), "VOLD ALERT", Alert.Bar, Sound.Bell);

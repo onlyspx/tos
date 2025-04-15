@@ -1,5 +1,6 @@
-#MTF 5 SMA, 21 EMA, 200 SMA & DAILY VWAP LABELS
-#Modified from original MTF SQUEEZE PRO by CASEY BRETT
+#MTF TREND SCORE - Multi-Timeframe Trend Analysis
+#Includes: VWAP, 5/8/21 EMAs, 200 SMA across 5 timeframes
+#Original concept based on MTF SQUEEZE PRO by CASEY BRETT
 
 ##Global Variables
 input shortSMALength = 5;   # Added 5 SMA
@@ -61,38 +62,6 @@ else {
     dayAggregationPeriod = 0;
 }
 
-# Add labels with appropriate colors based on conditions
-AddLabel(
-    DayLabel and dayAggregationPeriod,
-    "D5:  " + Round(dayShortSMA, 0),
-    if dayAboveShortSMA then GlobalColor("Above_MA") else GlobalColor("Below_MA")
-);
-AddLabel(
-    DayLabel and dayAggregationPeriod,
-    "D8:  " + Round(day8EMA, 0),
-    if dayAbove8EMA then GlobalColor("Above_MA") else GlobalColor("Below_MA")
-);
-
-
-AddLabel(
-    DayLabel and dayAggregationPeriod,
-    "D21:  " + Round(dayEMA, 0),
-    if dayAboveEMA then GlobalColor("Above_MA") else GlobalColor("Below_MA")
-);
-
-AddLabel(
-    DayLabel and dayAggregationPeriod,
-    "D200:  " + Round(dayLongSMA, 0),
-    if dayAboveLongSMA then GlobalColor("Above_MA") else GlobalColor("Below_MA")
-);
-
-# Only show VWAP label once
-AddLabel(
-    VWAPLabel,
-    "VWAP:  " + Round(dailyVWAP, 0),
-    if priceAboveDailyVWAP then GlobalColor("Above_MA") else GlobalColor("Below_MA")
-);
-
 ## 4-Hour Timeframe
 def fourHourPrice;
 def fourHourEMA;
@@ -117,20 +86,6 @@ else {
     fourHourAboveLongSMA = 0;
     fourHourAggregationPeriod = 0;
 }
-
-# Add labels with appropriate colors based on conditions
-
-AddLabel(
-    FourHourLabel and fourHourAggregationPeriod,
-    "4h21:  " + Round(fourHourEMA, 0),
-    if fourHourAboveEMA then GlobalColor("Above_MA") else GlobalColor("Below_MA")
-);
-
-AddLabel(
-    FourHourLabel and fourHourAggregationPeriod,
-    "4h200:  " + Round(fourHourLongSMA, 0),
-    if fourHourAboveLongSMA then GlobalColor("Above_MA") else GlobalColor("Below_MA")
-);
 
 ## 1-Hour Timeframe
 def hourPrice;
@@ -157,21 +112,6 @@ else {
     hourAggregationPeriod = 0;
 }
 
-# Add labels with appropriate colors based on conditions
-
-AddLabel(
-    HourLabel and hourAggregationPeriod,
-    "1h21:  " + Round(hourEMA, 0),
-    if hourAboveEMA then GlobalColor("Above_MA") else GlobalColor("Below_MA")
-);
-
-AddLabel(
-    HourLabel and hourAggregationPeriod,
-    "1h200:  " + Round(hourLongSMA, 0),
-    if hourAboveLongSMA then GlobalColor("Above_MA") else GlobalColor("Below_MA")
-);
-
-
 ## 15-Minute Timeframe
 def fifteenMinPrice;
 def fifteenMinEMA;
@@ -196,20 +136,6 @@ else {
     fifteenMinAboveLongSMA = 0;
     fifteenMinAggregationPeriod = 0;
 }
-
-# Add labels with appropriate colors based on conditions
-
-AddLabel(
-    FifteenMinLabel and fifteenMinAggregationPeriod,
-    "15m21:  " + Round(fifteenMinEMA, 0),
-    if fifteenMinAboveEMA then GlobalColor("Above_MA") else GlobalColor("Below_MA")
-);
-
-AddLabel(
-    FifteenMinLabel and fifteenMinAggregationPeriod,
-    "15m200:  " + Round(fifteenMinLongSMA, 0),
-    if fifteenMinAboveLongSMA then GlobalColor("Above_MA") else GlobalColor("Below_MA")
-);
 
 ## 5-Minute Timeframe
 def fiveMinPrice;
@@ -236,16 +162,92 @@ else {
     fiveMinAggregationPeriod = 0;
 }
 
-# Add labels with appropriate colors based on conditions
+# Calculate weighted score
+def score = 
+    (if priceAboveDailyVWAP then 2 else -2) +  # VWAP gets 2 points
+    (if dayAboveEMA then 2 else -2) +          # Daily 21 EMA gets 2 points
+    (if dayAboveLongSMA then 1 else -1) +      # Daily 200 SMA gets 1 point
+    (if fourHourAboveEMA then 1 else -1) +     # 4H 21 EMA gets 1 point
+    (if hourAboveEMA then 1 else -1) +         # 1H 21 EMA gets 1 point
+    (if fifteenMinAboveEMA then 1 else -1) +   # 15M 21 EMA gets 1 point
+    (if fiveMinAboveEMA then 1 else -1);       # 5M 21 EMA gets 1 point
 
+# Add score label first
 AddLabel(
-    FiveMinLabel and fiveMinAggregationPeriod,
-    "5m21:  " + Round(fiveMinEMA, 0),
-    if fiveMinAboveEMA then GlobalColor("Above_MA") else GlobalColor("Below_MA")
+    yes,
+    "Score: " + score + " ",
+    if score > 0 then GlobalColor("Above_MA") else GlobalColor("Below_MA")
 );
 
+# Add other labels in the specified order
+AddLabel(
+    VWAPLabel,
+    "VWAP: " + Round(dailyVWAP, 0) + " ",
+    if priceAboveDailyVWAP then GlobalColor("Above_MA") else GlobalColor("Below_MA")
+);
+
+# 2. Daily Labels
+AddLabel(
+    DayLabel and dayAggregationPeriod,
+    "D5: " + Round(dayShortSMA, 0) + " ",
+    if dayAboveShortSMA then GlobalColor("Above_MA") else GlobalColor("Below_MA")
+);
+AddLabel(
+    DayLabel and dayAggregationPeriod,
+    "D8: " + Round(day8EMA, 0) + " ",
+    if dayAbove8EMA then GlobalColor("Above_MA") else GlobalColor("Below_MA")
+);
+AddLabel(
+    DayLabel and dayAggregationPeriod,
+    "D21: " + Round(dayEMA, 0) + " ",
+    if dayAboveEMA then GlobalColor("Above_MA") else GlobalColor("Below_MA")
+);
+AddLabel(
+    DayLabel and dayAggregationPeriod,
+    "D200: " + Round(dayLongSMA, 0) + " ",
+    if dayAboveLongSMA then GlobalColor("Above_MA") else GlobalColor("Below_MA")
+);
+
+# 3. 200 SMA Labels (Descending Timeframe: 4h, 1h, 15m, 5m)
+AddLabel(
+    FourHourLabel and fourHourAggregationPeriod,
+    "4h200: " + Round(fourHourLongSMA, 0) + " ",
+    if fourHourAboveLongSMA then GlobalColor("Above_MA") else GlobalColor("Below_MA")
+);
+AddLabel(
+    HourLabel and hourAggregationPeriod,
+    "1h200: " + Round(hourLongSMA, 0) + " ",
+    if hourAboveLongSMA then GlobalColor("Above_MA") else GlobalColor("Below_MA")
+);
+AddLabel(
+    FifteenMinLabel and fifteenMinAggregationPeriod,
+    "15m200: " + Round(fifteenMinLongSMA, 0) + " ",
+    if fifteenMinAboveLongSMA then GlobalColor("Above_MA") else GlobalColor("Below_MA")
+);
 AddLabel(
     FiveMinLabel and fiveMinAggregationPeriod,
-    "5m200:  " + Round(fiveMinLongSMA, 0),
+    "5m200: " + Round(fiveMinLongSMA, 0) + " ",
     if fiveMinAboveLongSMA then GlobalColor("Above_MA") else GlobalColor("Below_MA")
+);
+
+# 4. 21 EMA Labels (Descending Timeframe: 4h, 1h, 15m, 5m)
+AddLabel(
+    FourHourLabel and fourHourAggregationPeriod,
+    "4h21: " + Round(fourHourEMA, 0) + " ",
+    if fourHourAboveEMA then GlobalColor("Above_MA") else GlobalColor("Below_MA")
+);
+AddLabel(
+    HourLabel and hourAggregationPeriod,
+    "1h21: " + Round(hourEMA, 0) + " ",
+    if hourAboveEMA then GlobalColor("Above_MA") else GlobalColor("Below_MA")
+);
+AddLabel(
+    FifteenMinLabel and fifteenMinAggregationPeriod,
+    "15m21: " + Round(fifteenMinEMA, 0) + " ",
+    if fifteenMinAboveEMA then GlobalColor("Above_MA") else GlobalColor("Below_MA")
+);
+AddLabel(
+    FiveMinLabel and fiveMinAggregationPeriod,
+    "5m21: " + Round(fiveMinEMA, 0) + " ",
+    if fiveMinAboveEMA then GlobalColor("Above_MA") else GlobalColor("Below_MA")
 );

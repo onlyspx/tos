@@ -1,0 +1,59 @@
+MTF_21EMA SCRIPT DOCUMENTATION
+=============================
+
+OVERVIEW
+--------
+The MTF_21EMA script displays multiple timeframe moving averages and VWAP with a weighted scoring system for day trading/scalping.
+
+KEY FEATURES
+------------
+1. Multi-timeframe indicators (Daily, 4H, 1H, 15M, 5M)
+2. Key indicators: 21 EMA, 200 SMA, VWAP
+3. Color-coded labels (Green=Above MA, Red=Below MA)
+4. Weighted scoring system (-9 to +9)
+
+SCORING SYSTEM DETAILS
+----------------------
+The score ranges from -9 (strong bearish) to +9 (strong bullish):
+
+1. VWAP Position: ±2 points
+   - Above: +2
+   - Below: -2
+
+2. Daily 21 EMA: ±2 points
+   - Above: +2
+   - Below: -2
+
+3. Daily 200 SMA: ±1 point
+   - Above: +1
+   - Below: -1
+
+4. Other 21 EMAs (4H,1H,15M,5M): ±1 point each
+   - Above: +1
+   - Below: -1
+
+INTERPRETATION GUIDE
+--------------------
++7 to +9: Strong bullish trend
++4 to +6: Moderate bullish bias
+-3 to +3: Mixed/neutral signals
+-4 to -6: Moderate bearish bias
+-7 to -9: Strong bearish trend
+
+USAGE TIPS
+----------
+1. Look for extreme scores (>|6|) for high-confidence trades
+2. Scores near zero suggest range-bound conditions
+3. Combine with price action for best results
+4. The score updates in real-time as conditions change
+
+LABEL REFERENCE
+---------------
+Score: Overall trend strength (-9 to +9)
+VWAP: Daily Volume Weighted Average Price
+D21: Daily 21-period EMA
+D200: Daily 200-period SMA
+4h21: 4-hour 21 EMA
+1h21: 1-hour 21 EMA
+15m21: 15-minute 21 EMA
+5m21: 5-minute 21 EMA

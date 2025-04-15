@@ -1,0 +1,22 @@
+**`mtf_21ema.mx` Script Summary:**
+
+This script is designed for technical analysis, likely within a trading platform like Thinkorswim (based on the syntax). Its main purpose is to display multiple moving averages and the Volume Weighted Average Price (VWAP) across different timeframes directly on your chart using labels.
+
+**Key Functionality:**
+
+1.  **Multi-Time Frame (MTF) Analysis:** It calculates indicators based on data from various timeframes: Daily, 4-Hour, 1-Hour, 15-Minute, and 5-Minute.
+2.  **Indicators Calculated:**
+    *   **Daily:** 5-period Simple Moving Average (SMA), 8-period Exponential Moving Average (EMA), 21-period EMA, 200-period SMA.
+    *   **4-Hour, 1-Hour, 15-Min, 5-Min:** 21-period EMA, 200-period SMA.
+    *   **Daily VWAP:** Volume Weighted Average Price calculated on a daily basis.
+3.  **Label Display:**
+    *   It adds labels to the chart for each calculated indicator and timeframe.
+    *   You can toggle the visibility of labels for each timeframe (Daily, 4H, 1H, 15M, 5M) and the VWAP using input settings.
+    *   Labels show the timeframe, indicator type/period (e.g., "D5", "4h21", "VWAP"), and the calculated value.
+4.  **Color Coding:**
+    *   Labels are color-coded:
+        *   **Dark Green:** If the closing price of that timeframe is *above* the corresponding moving average or VWAP.
+        *   **Red:** If the closing price is *below* the corresponding moving average or VWAP.
+5.  **Customization:** You can adjust the lengths for the SMAs and EMAs via input settings.
+
+In essence, the script provides a quick visual reference on the chart to see how the current price relates to key moving averages and the daily VWAP across multiple standard trading timeframes.
