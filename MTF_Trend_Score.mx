@@ -17,10 +17,9 @@ input FifteenMinLabel = yes;
 input FiveMinLabel = yes;
 input VWAPLabel = yes;
 
-# Color definitions - gradient based on distance from MA
+# Color definitions - 4-level gradient
 DefineGlobalColor("StrongAbove", CreateColor(0, 100, 0));  # Dark Green
-DefineGlobalColor("MildAbove", CreateColor(144, 238, 144));  # Light Green
-DefineGlobalColor("Neutral", Color.GRAY);
+DefineGlobalColor("MildAbove", CreateColor(144, 238, 144));  # Light Green 
 DefineGlobalColor("MildBelow", CreateColor(255, 182, 193));  # Light Red
 DefineGlobalColor("StrongBelow", CreateColor(139, 0, 0));  # Dark Red
 
@@ -165,8 +164,8 @@ else {
     fiveMinAggregationPeriod = 0;
 }
 
-# Calculate weighted score - handles SPX (no VWAP) by making it optional
-def score = 
+# Calculate simple score - binary above/below
+def simpleScore = 
     (if VWAPLabel and priceAboveDailyVWAP then 2 else if VWAPLabel then -2 else 0) +  # VWAP gets 2 points if enabled
     (if dayAboveEMA then 2 else -2) +          # Daily 21 EMA gets 2 points
     (if dayAboveLongSMA then 1 else -1) +      # Daily 200 SMA gets 1 point
@@ -175,13 +174,52 @@ def score =
     (if fifteenMinAboveEMA then 1 else -1) +   # 15M 21 EMA gets 1 point
     (if fiveMinAboveEMA then 1 else -1);       # 5M 21 EMA gets 1 point
 
-# Add score label first
+# Calculate weighted score - distance-based
+def weightedScore = 
+    (if VWAPLabel then 
+        if AbsValue((close - dailyVWAP)/dailyVWAP)*100 > 2 then 
+            if priceAboveDailyVWAP then 2 else -2
+        else if priceAboveDailyVWAP then 1 else -1
+    else 0) +
+    (if AbsValue((dayPrice - dayEMA)/dayEMA)*100 > 2 then 
+        if dayAboveEMA then 2 else -2
+    else if dayAboveEMA then 1 else -1) +
+    (if AbsValue((dayPrice - dayLongSMA)/dayLongSMA)*100 > 2 then 
+        if dayAboveLongSMA then 1 else -1
+    else if dayAboveLongSMA then 0.5 else -0.5) +
+    (if AbsValue((fourHourPrice - fourHourEMA)/fourHourEMA)*100 > 1 then 
+        if fourHourAboveEMA then 1 else -1
+    else if fourHourAboveEMA then 0.5 else -0.5) +
+    (if AbsValue((hourPrice - hourEMA)/hourEMA)*100 > 1 then 
+        if hourAboveEMA then 1 else -1
+    else if hourAboveEMA then 0.5 else -0.5) +
+    (if AbsValue((fifteenMinPrice - fifteenMinEMA)/fifteenMinEMA)*100 > 1 then 
+        if fifteenMinAboveEMA then 1 else -1
+    else if fifteenMinAboveEMA then 0.5 else -0.5) +
+    (if AbsValue((fiveMinPrice - fiveMinEMA)/fiveMinEMA)*100 > 1 then 
+        if fiveMinAboveEMA then 1 else -1
+    else if fiveMinAboveEMA then 0.5 else -0.5);
+
+# Calculate scaled scores (0-10 range)
+def scaledSimpleScore = Round(simpleScore * (if VWAPLabel then 10/9 else 10/7), 1);
+def scaledWeightedScore = Round(weightedScore * (if VWAPLabel then 10/9.5 else 10/7.5), 1);
+
+# Add score labels
 AddLabel(
     yes,
-    "Score: " + score + " ",
-    if score > 3 then GlobalColor("StrongAbove")
-    else if score > 0 then GlobalColor("MildAbove")
-    else if score > -3 then GlobalColor("MildBelow")
+    "Score: " + scaledSimpleScore + "/10 ",
+    if scaledSimpleScore > (30/9) then GlobalColor("StrongAbove")
+    else if scaledSimpleScore > 0 then GlobalColor("MildAbove")
+    else if scaledSimpleScore > -(30/9) then GlobalColor("MildBelow")
+    else GlobalColor("StrongBelow")
+);
+
+AddLabel(
+    yes, 
+    "WScore: " + scaledWeightedScore + "/10 ",
+    if scaledWeightedScore > (30/9.5) then GlobalColor("StrongAbove")
+    else if scaledWeightedScore > 0 then GlobalColor("MildAbove")
+    else if scaledWeightedScore > -(30/9.5) then GlobalColor("MildBelow")
     else GlobalColor("StrongBelow")
 );
 
@@ -200,36 +238,32 @@ AddLabel(
 AddLabel(
     DayLabel and dayAggregationPeriod,
     "D5: " + Round(dayShortSMA, 0) + " ",
-    if AbsValue((dayPrice - dayShortSMA)/dayShortSMA)*100 <= 0.5 then GlobalColor("Neutral")
-    else if (dayPrice - dayShortSMA)/dayShortSMA*100 > 2 then GlobalColor("StrongAbove")
-    else if (dayPrice - dayShortSMA)/dayShortSMA*100 > 0.5 then GlobalColor("MildAbove")
+    if (dayPrice - dayShortSMA)/dayShortSMA*100 > 2 then GlobalColor("StrongAbove")
+    else if dayPrice > dayShortSMA then GlobalColor("MildAbove")
     else if (dayPrice - dayShortSMA)/dayShortSMA*100 < -2 then GlobalColor("StrongBelow")
     else GlobalColor("MildBelow")
 );
 AddLabel(
     DayLabel and dayAggregationPeriod,
     "D8: " + Round(day8EMA, 0) + " ",
-    if AbsValue((dayPrice - day8EMA)/day8EMA)*100 <= 0.5 then GlobalColor("Neutral")
-    else if (dayPrice - day8EMA)/day8EMA*100 > 2 then GlobalColor("StrongAbove")
-    else if (dayPrice - day8EMA)/day8EMA*100 > 0.5 then GlobalColor("MildAbove")
+    if (dayPrice - day8EMA)/day8EMA*100 > 2 then GlobalColor("StrongAbove")
+    else if dayPrice > day8EMA then GlobalColor("MildAbove")
     else if (dayPrice - day8EMA)/day8EMA*100 < -2 then GlobalColor("StrongBelow")
     else GlobalColor("MildBelow")
 );
 AddLabel(
     DayLabel and dayAggregationPeriod,
     "D21: " + Round(dayEMA, 0) + " ",
-    if AbsValue((dayPrice - dayEMA)/dayEMA)*100 <= 0.5 then GlobalColor("Neutral")
-    else if (dayPrice - dayEMA)/dayEMA*100 > 2 then GlobalColor("StrongAbove")
-    else if (dayPrice - dayEMA)/dayEMA*100 > 0.5 then GlobalColor("MildAbove")
+    if (dayPrice - dayEMA)/dayEMA*100 > 2 then GlobalColor("StrongAbove")
+    else if dayPrice > dayEMA then GlobalColor("MildAbove")
     else if (dayPrice - dayEMA)/dayEMA*100 < -2 then GlobalColor("StrongBelow")
     else GlobalColor("MildBelow")
 );
 AddLabel(
     DayLabel and dayAggregationPeriod,
     "D200: " + Round(dayLongSMA, 0) + " ",
-    if AbsValue((dayPrice - dayLongSMA)/dayLongSMA)*100 <= 0.5 then GlobalColor("Neutral")
-    else if (dayPrice - dayLongSMA)/dayLongSMA*100 > 2 then GlobalColor("StrongAbove")
-    else if (dayPrice - dayLongSMA)/dayLongSMA*100 > 0.5 then GlobalColor("MildAbove")
+    if (dayPrice - dayLongSMA)/dayLongSMA*100 > 2 then GlobalColor("StrongAbove")
+    else if dayPrice > dayLongSMA then GlobalColor("MildAbove")
     else if (dayPrice - dayLongSMA)/dayLongSMA*100 < -2 then GlobalColor("StrongBelow")
     else GlobalColor("MildBelow")
 );
@@ -238,36 +272,32 @@ AddLabel(
 AddLabel(
     FourHourLabel and fourHourAggregationPeriod,
     "4h200: " + Round(fourHourLongSMA, 0) + " ",
-    if AbsValue((fourHourPrice - fourHourLongSMA)/fourHourLongSMA)*100 <= 0.25 then GlobalColor("Neutral")
-    else if (fourHourPrice - fourHourLongSMA)/fourHourLongSMA*100 > 1 then GlobalColor("StrongAbove")
-    else if (fourHourPrice - fourHourLongSMA)/fourHourLongSMA*100 > 0.25 then GlobalColor("MildAbove")
+    if (fourHourPrice - fourHourLongSMA)/fourHourLongSMA*100 > 1 then GlobalColor("StrongAbove")
+    else if fourHourPrice > fourHourLongSMA then GlobalColor("MildAbove")
     else if (fourHourPrice - fourHourLongSMA)/fourHourLongSMA*100 < -1 then GlobalColor("StrongBelow")
     else GlobalColor("MildBelow")
 );
 AddLabel(
     HourLabel and hourAggregationPeriod,
     "1h200: " + Round(hourLongSMA, 0) + " ",
-    if AbsValue((hourPrice - hourLongSMA)/hourLongSMA)*100 <= 0.25 then GlobalColor("Neutral")
-    else if (hourPrice - hourLongSMA)/hourLongSMA*100 > 1 then GlobalColor("StrongAbove")
-    else if (hourPrice - hourLongSMA)/hourLongSMA*100 > 0.25 then GlobalColor("MildAbove")
+    if (hourPrice - hourLongSMA)/hourLongSMA*100 > 1 then GlobalColor("StrongAbove")
+    else if hourPrice > hourLongSMA then GlobalColor("MildAbove")
     else if (hourPrice - hourLongSMA)/hourLongSMA*100 < -1 then GlobalColor("StrongBelow")
     else GlobalColor("MildBelow")
 );
 AddLabel(
     FifteenMinLabel and fifteenMinAggregationPeriod,
     "15m200: " + Round(fifteenMinLongSMA, 0) + " ",
-    if AbsValue((fifteenMinPrice - fifteenMinLongSMA)/fifteenMinLongSMA)*100 <= 0.25 then GlobalColor("Neutral")
-    else if (fifteenMinPrice - fifteenMinLongSMA)/fifteenMinLongSMA*100 > 1 then GlobalColor("StrongAbove")
-    else if (fifteenMinPrice - fifteenMinLongSMA)/fifteenMinLongSMA*100 > 0.25 then GlobalColor("MildAbove")
+    if (fifteenMinPrice - fifteenMinLongSMA)/fifteenMinLongSMA*100 > 1 then GlobalColor("StrongAbove")
+    else if fifteenMinPrice > fifteenMinLongSMA then GlobalColor("MildAbove")
     else if (fifteenMinPrice - fifteenMinLongSMA)/fifteenMinLongSMA*100 < -1 then GlobalColor("StrongBelow")
     else GlobalColor("MildBelow")
 );
 AddLabel(
     FiveMinLabel and fiveMinAggregationPeriod,
     "5m200: " + Round(fiveMinLongSMA, 0) + " ",
-    if AbsValue((fiveMinPrice - fiveMinLongSMA)/fiveMinLongSMA)*100 <= 0.25 then GlobalColor("Neutral")
-    else if (fiveMinPrice - fiveMinLongSMA)/fiveMinLongSMA*100 > 1 then GlobalColor("StrongAbove")
-    else if (fiveMinPrice - fiveMinLongSMA)/fiveMinLongSMA*100 > 0.25 then GlobalColor("MildAbove")
+    if (fiveMinPrice - fiveMinLongSMA)/fiveMinLongSMA*100 > 1 then GlobalColor("StrongAbove")
+    else if fiveMinPrice > fiveMinLongSMA then GlobalColor("MildAbove")
     else if (fiveMinPrice - fiveMinLongSMA)/fiveMinLongSMA*100 < -1 then GlobalColor("StrongBelow")
     else GlobalColor("MildBelow")
 );
@@ -276,36 +306,32 @@ AddLabel(
 AddLabel(
     FourHourLabel and fourHourAggregationPeriod,
     "4h21: " + Round(fourHourEMA, 0) + " ",
-    if AbsValue((fourHourPrice - fourHourEMA)/fourHourEMA)*100 <= 0.25 then GlobalColor("Neutral")
-    else if (fourHourPrice - fourHourEMA)/fourHourEMA*100 > 1 then GlobalColor("StrongAbove")
-    else if (fourHourPrice - fourHourEMA)/fourHourEMA*100 > 0.25 then GlobalColor("MildAbove")
+    if (fourHourPrice - fourHourEMA)/fourHourEMA*100 > 1 then GlobalColor("StrongAbove")
+    else if fourHourPrice > fourHourEMA then GlobalColor("MildAbove")
     else if (fourHourPrice - fourHourEMA)/fourHourEMA*100 < -1 then GlobalColor("StrongBelow")
     else GlobalColor("MildBelow")
 );
 AddLabel(
     HourLabel and hourAggregationPeriod,
     "1h21: " + Round(hourEMA, 0) + " ",
-    if AbsValue((hourPrice - hourEMA)/hourEMA)*100 <= 0.25 then GlobalColor("Neutral")
-    else if (hourPrice - hourEMA)/hourEMA*100 > 1 then GlobalColor("StrongAbove")
-    else if (hourPrice - hourEMA)/hourEMA*100 > 0.25 then GlobalColor("MildAbove")
+    if (hourPrice - hourEMA)/hourEMA*100 > 1 then GlobalColor("StrongAbove")
+    else if hourPrice > hourEMA then GlobalColor("MildAbove")
     else if (hourPrice - hourEMA)/hourEMA*100 < -1 then GlobalColor("StrongBelow")
     else GlobalColor("MildBelow")
 );
 AddLabel(
     FifteenMinLabel and fifteenMinAggregationPeriod,
     "15m21: " + Round(fifteenMinEMA, 0) + " ",
-    if AbsValue((fifteenMinPrice - fifteenMinEMA)/fifteenMinEMA)*100 <= 0.25 then GlobalColor("Neutral")
-    else if (fifteenMinPrice - fifteenMinEMA)/fifteenMinEMA*100 > 1 then GlobalColor("StrongAbove")
-    else if (fifteenMinPrice - fifteenMinEMA)/fifteenMinEMA*100 > 0.25 then GlobalColor("MildAbove")
+    if (fifteenMinPrice - fifteenMinEMA)/fifteenMinEMA*100 > 1 then GlobalColor("StrongAbove")
+    else if fifteenMinPrice > fifteenMinEMA then GlobalColor("MildAbove")
     else if (fifteenMinPrice - fifteenMinEMA)/fifteenMinEMA*100 < -1 then GlobalColor("StrongBelow")
     else GlobalColor("MildBelow")
 );
 AddLabel(
     FiveMinLabel and fiveMinAggregationPeriod,
     "5m21: " + Round(fiveMinEMA, 0) + " ",
-    if AbsValue((fiveMinPrice - fiveMinEMA)/fiveMinEMA)*100 <= 0.25 then GlobalColor("Neutral")
-    else if (fiveMinPrice - fiveMinEMA)/fiveMinEMA*100 > 1 then GlobalColor("StrongAbove")
-    else if (fiveMinPrice - fiveMinEMA)/fiveMinEMA*100 > 0.25 then GlobalColor("MildAbove")
+    if (fiveMinPrice - fiveMinEMA)/fiveMinEMA*100 > 1 then GlobalColor("StrongAbove")
+    else if fiveMinPrice > fiveMinEMA then GlobalColor("MildAbove")
     else if (fiveMinPrice - fiveMinEMA)/fiveMinEMA*100 < -1 then GlobalColor("StrongBelow")
     else GlobalColor("MildBelow")
 );
