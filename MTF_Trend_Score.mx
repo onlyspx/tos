@@ -6,6 +6,8 @@
 input shortSMALength = 5;   # Added 5 SMA
 input ema8Length = 8;       # Added 8 EMA
 input emaLength = 21;
+input sma50Length = 50;     # Added 50 SMA
+input sma100Length = 100;   # Added 100 SMA
 input longSMALength = 200;
 input averageType = AverageType.EXPONENTIAL;
 
@@ -13,8 +15,10 @@ input averageType = AverageType.EXPONENTIAL;
 input DayLabel = yes;
 input FourHourLabel = yes;
 input HourLabel = yes;
+input ThirtyMinLabel = yes;
 input FifteenMinLabel = yes;
 input FiveMinLabel = yes;
+input ThreeMinLabel = yes;
 input VWAPLabel = yes;
 
 # Color definitions - 4-level gradient
@@ -32,10 +36,14 @@ def dayPrice;
 def dayShortSMA;  # Added 5 SMA
 def day8EMA;      # Added 8 EMA
 def dayEMA;
+def day50SMA;     # Added 50 SMA
+def day100SMA;    # Added 100 SMA
 def dayLongSMA;
 def dayAboveShortSMA;  # Added 5 SMA check
 def dayAbove8EMA;      # Added 8 EMA check
 def dayAboveEMA;
+def dayAbove50SMA;     # Added 50 SMA check
+def dayAbove100SMA;    # Added 100 SMA check
 def dayAboveLongSMA;
 def dayAggregationPeriod;
 
@@ -44,10 +52,14 @@ if GetAggregationPeriod() <= AggregationPeriod.DAY {
     dayShortSMA = Average(dayPrice, shortSMALength);  # Added 5 SMA
     day8EMA = ExpAverage(dayPrice, ema8Length);       # Added 8 EMA
     dayEMA = ExpAverage(dayPrice, emaLength);
+    day50SMA = Average(dayPrice, sma50Length);        # Added 50 SMA
+    day100SMA = Average(dayPrice, sma100Length);      # Added 100 SMA
     dayLongSMA = Average(dayPrice, longSMALength);
     dayAboveShortSMA = dayPrice > dayShortSMA;  # Added 5 SMA check
     dayAbove8EMA = dayPrice > day8EMA;          # Added 8 EMA check
     dayAboveEMA = dayPrice > dayEMA;
+    dayAbove50SMA = dayPrice > day50SMA;       # Added 50 SMA check
+    dayAbove100SMA = dayPrice > day100SMA;     # Added 100 SMA check
     dayAboveLongSMA = dayPrice > dayLongSMA;
     dayAggregationPeriod = 1;
 }
@@ -56,10 +68,14 @@ else {
     dayShortSMA = 0;  # Added 5 SMA
     day8EMA = 0;      # Added 8 EMA
     dayEMA = 0;
+    day50SMA = 0;     # Added 50 SMA
+    day100SMA = 0;    # Added 100 SMA
     dayLongSMA = 0;
     dayAboveShortSMA = 0;  # Added 5 SMA check
     dayAbove8EMA = 0;      # Added 8 EMA check
     dayAboveEMA = 0;
+    dayAbove50SMA = 0;     # Added 50 SMA check
+    dayAbove100SMA = 0;    # Added 100 SMA check
     dayAboveLongSMA = 0;
     dayAggregationPeriod = 0;
 }
@@ -67,25 +83,19 @@ else {
 ## 4-Hour Timeframe
 def fourHourPrice;
 def fourHourEMA;
-def fourHourLongSMA;
 def fourHourAboveEMA;
-def fourHourAboveLongSMA;
 def fourHourAggregationPeriod;
 
 if GetAggregationPeriod() <= AggregationPeriod.FOUR_HOURS {
     fourHourPrice = close(period = "4 Hours");
     fourHourEMA = ExpAverage(fourHourPrice, emaLength);
-    fourHourLongSMA = Average(fourHourPrice, longSMALength);
     fourHourAboveEMA = fourHourPrice > fourHourEMA;
-    fourHourAboveLongSMA = fourHourPrice > fourHourLongSMA;
     fourHourAggregationPeriod = 1;
 }
 else {
     fourHourPrice = 0;
     fourHourEMA = 0;
-    fourHourLongSMA = 0;
     fourHourAboveEMA = 0;
-    fourHourAboveLongSMA = 0;
     fourHourAggregationPeriod = 0;
 }
 
@@ -114,114 +124,81 @@ else {
     hourAggregationPeriod = 0;
 }
 
+## 30-Minute Timeframe
+def thirtyMinPrice;
+def thirtyMinEMA;
+def thirtyMinAboveEMA;
+def thirtyMinAggregationPeriod;
+
+if GetAggregationPeriod() <= AggregationPeriod.THIRTY_MIN {
+    thirtyMinPrice = close(period = "30 Min");
+    thirtyMinEMA = ExpAverage(thirtyMinPrice, emaLength);
+    thirtyMinAboveEMA = thirtyMinPrice > thirtyMinEMA;
+    thirtyMinAggregationPeriod = 1;
+}
+else {
+    thirtyMinPrice = 0;
+    thirtyMinEMA = 0;
+    thirtyMinAboveEMA = 0;
+    thirtyMinAggregationPeriod = 0;
+}
+
 ## 15-Minute Timeframe
 def fifteenMinPrice;
 def fifteenMinEMA;
-def fifteenMinLongSMA;
 def fifteenMinAboveEMA;
-def fifteenMinAboveLongSMA;
 def fifteenMinAggregationPeriod;
 
 if GetAggregationPeriod() <= AggregationPeriod.FIFTEEN_MIN {
     fifteenMinPrice = close(period = "15 Min");
     fifteenMinEMA = ExpAverage(fifteenMinPrice, emaLength);
-    fifteenMinLongSMA = Average(fifteenMinPrice, longSMALength);
     fifteenMinAboveEMA = fifteenMinPrice > fifteenMinEMA;
-    fifteenMinAboveLongSMA = fifteenMinPrice > fifteenMinLongSMA;
     fifteenMinAggregationPeriod = 1;
 }
 else {
     fifteenMinPrice = 0;
     fifteenMinEMA = 0;
-    fifteenMinLongSMA = 0;
     fifteenMinAboveEMA = 0;
-    fifteenMinAboveLongSMA = 0;
     fifteenMinAggregationPeriod = 0;
 }
 
 ## 5-Minute Timeframe
 def fiveMinPrice;
 def fiveMinEMA;
-def fiveMinLongSMA;
 def fiveMinAboveEMA;
-def fiveMinAboveLongSMA;
 def fiveMinAggregationPeriod;
 
 if GetAggregationPeriod() <= AggregationPeriod.FIVE_MIN {
     fiveMinPrice = close(period = "5 Min");
     fiveMinEMA = ExpAverage(fiveMinPrice, emaLength);
-    fiveMinLongSMA = Average(fiveMinPrice, longSMALength);
     fiveMinAboveEMA = fiveMinPrice > fiveMinEMA;
-    fiveMinAboveLongSMA = fiveMinPrice > fiveMinLongSMA;
     fiveMinAggregationPeriod = 1;
 }
 else {
     fiveMinPrice = 0;
     fiveMinEMA = 0;
-    fiveMinLongSMA = 0;
     fiveMinAboveEMA = 0;
-    fiveMinAboveLongSMA = 0;
     fiveMinAggregationPeriod = 0;
 }
 
-# Calculate simple score - binary above/below
-def simpleScore = 
-    (if VWAPLabel and priceAboveDailyVWAP then 2 else if VWAPLabel then -2 else 0) +  # VWAP gets 2 points if enabled
-    (if dayAboveEMA then 2 else -2) +          # Daily 21 EMA gets 2 points
-    (if dayAboveLongSMA then 1 else -1) +      # Daily 200 SMA gets 1 point
-    (if fourHourAboveEMA then 1 else -1) +     # 4H 21 EMA gets 1 point
-    (if hourAboveEMA then 1 else -1) +         # 1H 21 EMA gets 1 point
-    (if fifteenMinAboveEMA then 1 else -1) +   # 15M 21 EMA gets 1 point
-    (if fiveMinAboveEMA then 1 else -1);       # 5M 21 EMA gets 1 point
+## 3-Minute Timeframe
+def threeMinPrice;
+def threeMinEMA;
+def threeMinAboveEMA;
+def threeMinAggregationPeriod;
 
-# Calculate weighted score - distance-based
-def weightedScore = 
-    (if VWAPLabel then 
-        if AbsValue((close - dailyVWAP)/dailyVWAP)*100 > 2 then 
-            if priceAboveDailyVWAP then 2 else -2
-        else if priceAboveDailyVWAP then 1 else -1
-    else 0) +
-    (if AbsValue((dayPrice - dayEMA)/dayEMA)*100 > 2 then 
-        if dayAboveEMA then 2 else -2
-    else if dayAboveEMA then 1 else -1) +
-    (if AbsValue((dayPrice - dayLongSMA)/dayLongSMA)*100 > 2 then 
-        if dayAboveLongSMA then 1 else -1
-    else if dayAboveLongSMA then 0.5 else -0.5) +
-    (if AbsValue((fourHourPrice - fourHourEMA)/fourHourEMA)*100 > 1 then 
-        if fourHourAboveEMA then 1 else -1
-    else if fourHourAboveEMA then 0.5 else -0.5) +
-    (if AbsValue((hourPrice - hourEMA)/hourEMA)*100 > 1 then 
-        if hourAboveEMA then 1 else -1
-    else if hourAboveEMA then 0.5 else -0.5) +
-    (if AbsValue((fifteenMinPrice - fifteenMinEMA)/fifteenMinEMA)*100 > 1 then 
-        if fifteenMinAboveEMA then 1 else -1
-    else if fifteenMinAboveEMA then 0.5 else -0.5) +
-    (if AbsValue((fiveMinPrice - fiveMinEMA)/fiveMinEMA)*100 > 1 then 
-        if fiveMinAboveEMA then 1 else -1
-    else if fiveMinAboveEMA then 0.5 else -0.5);
-
-# Calculate scaled scores (0-10 range)
-def scaledSimpleScore = Round(simpleScore * (if VWAPLabel then 10/9 else 10/7), 1);
-def scaledWeightedScore = Round(weightedScore * (if VWAPLabel then 10/9.5 else 10/7.5), 1);
-
-# Add score labels
-AddLabel(
-    yes,
-    "Score: " + scaledSimpleScore + "/10 ",
-    if scaledSimpleScore > (30/9) then GlobalColor("StrongAbove")
-    else if scaledSimpleScore > 0 then GlobalColor("MildAbove")
-    else if scaledSimpleScore > -(30/9) then GlobalColor("MildBelow")
-    else GlobalColor("StrongBelow")
-);
-
-AddLabel(
-    yes, 
-    "WScore: " + scaledWeightedScore + "/10 ",
-    if scaledWeightedScore > (30/9.5) then GlobalColor("StrongAbove")
-    else if scaledWeightedScore > 0 then GlobalColor("MildAbove")
-    else if scaledWeightedScore > -(30/9.5) then GlobalColor("MildBelow")
-    else GlobalColor("StrongBelow")
-);
+if GetAggregationPeriod() <= AggregationPeriod.THREE_MIN {
+    threeMinPrice = close(period = "3 Min");
+    threeMinEMA = ExpAverage(threeMinPrice, emaLength);
+    threeMinAboveEMA = threeMinPrice > threeMinEMA;
+    threeMinAggregationPeriod = 1;
+}
+else {
+    threeMinPrice = 0;
+    threeMinEMA = 0;
+    threeMinAboveEMA = 0;
+    threeMinAggregationPeriod = 0;
+}
 
 # Add other labels in the specified order
 AddLabel(
@@ -261,6 +238,22 @@ AddLabel(
 );
 AddLabel(
     DayLabel and dayAggregationPeriod,
+    "D50: " + Round(day50SMA, 0) + " ",
+    if (dayPrice - day50SMA)/day50SMA*100 > 2 then GlobalColor("StrongAbove")
+    else if dayPrice > day50SMA then GlobalColor("MildAbove")
+    else if (dayPrice - day50SMA)/day50SMA*100 < -2 then GlobalColor("StrongBelow")
+    else GlobalColor("MildBelow")
+);
+AddLabel(
+    DayLabel and dayAggregationPeriod,
+    "D100: " + Round(day100SMA, 0) + " ",
+    if (dayPrice - day100SMA)/day100SMA*100 > 2 then GlobalColor("StrongAbove")
+    else if dayPrice > day100SMA then GlobalColor("MildAbove")
+    else if (dayPrice - day100SMA)/day100SMA*100 < -2 then GlobalColor("StrongBelow")
+    else GlobalColor("MildBelow")
+);
+AddLabel(
+    DayLabel and dayAggregationPeriod,
     "D200: " + Round(dayLongSMA, 0) + " ",
     if (dayPrice - dayLongSMA)/dayLongSMA*100 > 2 then GlobalColor("StrongAbove")
     else if dayPrice > dayLongSMA then GlobalColor("MildAbove")
@@ -268,41 +261,7 @@ AddLabel(
     else GlobalColor("MildBelow")
 );
 
-# 3. 200 SMA Labels (Descending Timeframe: 4h, 1h, 15m, 5m)
-AddLabel(
-    FourHourLabel and fourHourAggregationPeriod,
-    "4h200: " + Round(fourHourLongSMA, 0) + " ",
-    if (fourHourPrice - fourHourLongSMA)/fourHourLongSMA*100 > 1 then GlobalColor("StrongAbove")
-    else if fourHourPrice > fourHourLongSMA then GlobalColor("MildAbove")
-    else if (fourHourPrice - fourHourLongSMA)/fourHourLongSMA*100 < -1 then GlobalColor("StrongBelow")
-    else GlobalColor("MildBelow")
-);
-AddLabel(
-    HourLabel and hourAggregationPeriod,
-    "1h200: " + Round(hourLongSMA, 0) + " ",
-    if (hourPrice - hourLongSMA)/hourLongSMA*100 > 1 then GlobalColor("StrongAbove")
-    else if hourPrice > hourLongSMA then GlobalColor("MildAbove")
-    else if (hourPrice - hourLongSMA)/hourLongSMA*100 < -1 then GlobalColor("StrongBelow")
-    else GlobalColor("MildBelow")
-);
-AddLabel(
-    FifteenMinLabel and fifteenMinAggregationPeriod,
-    "15m200: " + Round(fifteenMinLongSMA, 0) + " ",
-    if (fifteenMinPrice - fifteenMinLongSMA)/fifteenMinLongSMA*100 > 1 then GlobalColor("StrongAbove")
-    else if fifteenMinPrice > fifteenMinLongSMA then GlobalColor("MildAbove")
-    else if (fifteenMinPrice - fifteenMinLongSMA)/fifteenMinLongSMA*100 < -1 then GlobalColor("StrongBelow")
-    else GlobalColor("MildBelow")
-);
-AddLabel(
-    FiveMinLabel and fiveMinAggregationPeriod,
-    "5m200: " + Round(fiveMinLongSMA, 0) + " ",
-    if (fiveMinPrice - fiveMinLongSMA)/fiveMinLongSMA*100 > 1 then GlobalColor("StrongAbove")
-    else if fiveMinPrice > fiveMinLongSMA then GlobalColor("MildAbove")
-    else if (fiveMinPrice - fiveMinLongSMA)/fiveMinLongSMA*100 < -1 then GlobalColor("StrongBelow")
-    else GlobalColor("MildBelow")
-);
-
-# 4. 21 EMA Labels (Descending Timeframe: 4h, 1h, 15m, 5m)
+# 4. 21 EMA Labels (Only keeping 4h21 as requested)
 AddLabel(
     FourHourLabel and fourHourAggregationPeriod,
     "4h21: " + Round(fourHourEMA, 0) + " ",
@@ -311,14 +270,16 @@ AddLabel(
     else if (fourHourPrice - fourHourEMA)/fourHourEMA*100 < -1 then GlobalColor("StrongBelow")
     else GlobalColor("MildBelow")
 );
+
 AddLabel(
-    HourLabel and hourAggregationPeriod,
-    "1h21: " + Round(hourEMA, 0) + " ",
-    if (hourPrice - hourEMA)/hourEMA*100 > 1 then GlobalColor("StrongAbove")
-    else if hourPrice > hourEMA then GlobalColor("MildAbove")
-    else if (hourPrice - hourEMA)/hourEMA*100 < -1 then GlobalColor("StrongBelow")
+    ThirtyMinLabel and thirtyMinAggregationPeriod,
+    "30m21: " + Round(thirtyMinEMA, 0) + " ",
+    if (thirtyMinPrice - thirtyMinEMA)/thirtyMinEMA*100 > 1 then GlobalColor("StrongAbove")
+    else if thirtyMinPrice > thirtyMinEMA then GlobalColor("MildAbove")
+    else if (thirtyMinPrice - thirtyMinEMA)/thirtyMinEMA*100 < -1 then GlobalColor("StrongBelow")
     else GlobalColor("MildBelow")
 );
+
 AddLabel(
     FifteenMinLabel and fifteenMinAggregationPeriod,
     "15m21: " + Round(fifteenMinEMA, 0) + " ",
@@ -333,5 +294,14 @@ AddLabel(
     if (fiveMinPrice - fiveMinEMA)/fiveMinEMA*100 > 1 then GlobalColor("StrongAbove")
     else if fiveMinPrice > fiveMinEMA then GlobalColor("MildAbove")
     else if (fiveMinPrice - fiveMinEMA)/fiveMinEMA*100 < -1 then GlobalColor("StrongBelow")
+    else GlobalColor("MildBelow")
+);
+
+AddLabel(
+    ThreeMinLabel and threeMinAggregationPeriod,
+    "3m21: " + Round(threeMinEMA, 0) + " ",
+    if (threeMinPrice - threeMinEMA)/threeMinEMA*100 > 1 then GlobalColor("StrongAbove")
+    else if threeMinPrice > threeMinEMA then GlobalColor("MildAbove")
+    else if (threeMinPrice - threeMinEMA)/threeMinEMA*100 < -1 then GlobalColor("StrongBelow")
     else GlobalColor("MildBelow")
 );
